@@ -136,7 +136,10 @@ rt_err_t rt_hw_gp2y10_init(const char *name, struct rt_sensor_config *cfg)
     {
         sensor_dust = rt_calloc(1, sizeof(struct rt_sensor_device));
         if (sensor_dust == RT_NULL)
-            goto __exit;
+        {
+            LOG_E("alloc memory failed");
+            return -RT_ENOMEM;
+        }
 
         sensor_dust->info.type       = RT_SENSOR_CLASS_DUST;
         sensor_dust->info.vendor     = RT_SENSOR_VENDOR_SHARP;
