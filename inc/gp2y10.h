@@ -11,10 +11,10 @@
 #ifndef __GP2Y10_H__
 #define __GP2Y10_H__
 
-#include <rthw.h>
 #include <rtthread.h>
 #include <rtdevice.h>
-#include "board.h"
+#include <board.h>
+#include <sensor.h>
 
 #define GP2Y10LIB_VERSION   "0.0.1"
 
