@@ -101,9 +101,9 @@ static float gp2y10_get_voltage(gp2y10_device_t dev)
     return voltage;
 }
 
-float gp2y10_get_dust_density(gp2y10_device_t dev)
+rt_uint32_t gp2y10_get_dust_density(gp2y10_device_t dev)
 {
-	float       voltage; 
+	float       voltage;
     rt_uint32_t density;
 
     voltage = gp2y10_get_voltage(dev);
