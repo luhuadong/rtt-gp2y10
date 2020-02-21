@@ -21,21 +21,17 @@
 #define ADC_DEV_NAME        "adc1"      /* ADC device name */
 #define ADC_DEV_CHANNEL     4           /* ADC channel */
 #define CONVERT_BITS        (1 << 12)   /* 转换位数为12位 */
-#define REFER_VOLTAGE       3300        /* 参考电压 3.3V,数据精度乘以100保留2位小数*/
 
-#define PULSE_TIME          280         /* us */
-#define COV_RATIO           0.17        /* (ug/m3)/mV */
-#define NO_DUST_VOLTAGE     600         /* mV */
-#define SYS_VOLTAGE         5000        /* mV */
-#define VOLTAGE_RATIO       11
 
-/* Remember delete after tesing */
-#define GP2Y10_USING_SOFT_FILTER
+/* 
+ * PKG_USING_GP2Y10_VOLTAGE_RATIO  11
+ * PKG_USING_GP2Y10_SOFT_FILTER
+ */
+
 
 struct gp2y10_device
 {
-	rt_adc_device_t adc_dev;            /* ADC 设备句柄 */ 
-
+	rt_adc_device_t adc_dev;
 	rt_base_t  iled_pin;
 	rt_base_t  aout_pin;
 	rt_mutex_t lock;

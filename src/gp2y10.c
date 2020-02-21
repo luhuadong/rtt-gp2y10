@@ -10,6 +10,11 @@
 
 #include "gp2y10.h"
 
+#define PULSE_TIME          280         /* us */
+#define COV_RATIO           0.17        /* (ug/m3)/mV */
+#define NO_DUST_VOLTAGE     600         /* mV */
+#define REFER_VOLTAGE       5000        /* mV */
+
 RT_WEAK void rt_hw_us_delay(rt_uint32_t us)
 {
     rt_uint32_t delta;
@@ -18,37 +23,6 @@ RT_WEAK void rt_hw_us_delay(rt_uint32_t us)
     delta = SysTick->VAL;
 
     while (delta - SysTick->VAL < us) continue;
-}
-
-gp2y10_device_t gp2y10_init(gp2y10_device_t dev, rt_base_t iled_pin, rt_base_t aout_pin)
-{
-	if(dev == NULL) return RT_NULL;
-
-    /* 查找设备 */
-    dev->adc_dev = (rt_adc_device_t)rt_device_find(ADC_DEV_NAME);
-
-    if (dev->adc_dev == RT_NULL)
-    {
-        rt_kprintf("(GP2Y10) Can't find %s device!\n", ADC_DEV_NAME);
-        //return RT_ERROR;
-    }
-	
-	dev->iled_pin = iled_pin;
-	dev->aout_pin = aout_pin;
-
-	rt_pin_mode(dev->iled_pin, PIN_MODE_OUTPUT);
-    rt_pin_write(dev->iled_pin, PIN_LOW);
-
-	return dev;
-}
-
-void gp2y10_deinit(gp2y10_device_t dev)
-{
-    RT_ASSERT(dev);
-
-    rt_mutex_delete(dev->lock);
-
-    rt_free(dev);
 }
 
 #ifdef GP2Y10_USING_SOFT_FILTER
@@ -130,7 +104,7 @@ float gp2y10_get_voltage(gp2y10_device_t dev)
     adc_value = gp2y10_get_adc_value(dev);
 
     /* convert */
-    voltage = adc_value * VOLTAGE_RATIO * SYS_VOLTAGE / CONVERT_BITS;
+    voltage = adc_value * PKG_USING_GP2Y10_VOLTAGE_RATIO * SYS_VOLTAGE / CONVERT_BITS;
 
     //rt_kprintf("(GP2Y10) ADC:%d, Voltage:%dmv\n", adc_value, (int)voltage);
 
@@ -153,4 +127,35 @@ float gp2y10_get_dust_density(gp2y10_device_t dev)
     //rt_kprintf("(GP2Y10) Voltage:%dmv, Dust:%dppm\n", (int)voltage, (int)density);
 
     return density;
+}
+
+gp2y10_device_t gp2y10_init(gp2y10_device_t dev, rt_base_t iled_pin, rt_base_t aout_pin)
+{
+    if(dev == NULL) return RT_NULL;
+
+    /* 查找设备 */
+    dev->adc_dev = (rt_adc_device_t)rt_device_find(ADC_DEV_NAME);
+
+    if (dev->adc_dev == RT_NULL)
+    {
+        rt_kprintf("(GP2Y10) Can't find %s device!\n", ADC_DEV_NAME);
+        //return RT_ERROR;
+    }
+    
+    dev->iled_pin = iled_pin;
+    dev->aout_pin = aout_pin;
+
+    rt_pin_mode(dev->iled_pin, PIN_MODE_OUTPUT);
+    rt_pin_write(dev->iled_pin, PIN_LOW);
+
+    return dev;
+}
+
+void gp2y10_deinit(gp2y10_device_t dev)
+{
+    RT_ASSERT(dev);
+
+    rt_mutex_delete(dev->lock);
+
+    rt_free(dev);
 }
