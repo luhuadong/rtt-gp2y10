@@ -19,35 +19,35 @@
 
 static void read_dust_entry(void *args)
 {
-    rt_device_t temp_dev = RT_NULL;
+    rt_device_t dust_dev = RT_NULL;
     struct rt_sensor_data sensor_data;
 
-    temp_dev = rt_device_find(args);
-    if (!temp_dev) 
+    dust_dev = rt_device_find(args);
+    if (dust_dev == RT_NULL)
     {
-        rt_kprintf("Can't find temp device.\n");
+        rt_kprintf("Can't find dust device.\n");
         return;
     }
 
-    if (rt_device_open(temp_dev, RT_DEVICE_FLAG_RDWR)) 
+    if (rt_device_open(dust_dev, RT_DEVICE_FLAG_RDWR)) 
     {
-        rt_kprintf("Open temp device failed.\n");
+        rt_kprintf("Open dust device failed.\n");
         return;
     }
 
     while(1)
     {
-        if (1 != rt_device_read(temp_dev, 0, &sensor_data, 1)) 
+        if (1 != rt_device_read(dust_dev, 0, &sensor_data, 1))
         {
-            rt_kprintf("Read temp data failed.\n");
+            rt_kprintf("Read dust data failed.\n");
             continue;
         }
-        rt_kprintf("[%d] Temp: %d\n", sensor_data.timestamp, sensor_data.data.temp);
+        rt_kprintf("[%d] Dust: %d\n", sensor_data.timestamp, sensor_data.data.dust);
 
-        rt_thread_mdelay(3000);
+        rt_thread_mdelay(2000);
     }
 
-    rt_device_close(temp_dev);
+    rt_device_close(dust_dev);
 }
 
 static int gp2y10_read_sample(void)
@@ -65,12 +65,16 @@ INIT_APP_EXPORT(gp2y10_read_sample);
 
 static int rt_hw_gp2y10_port(void)
 {
+    static struct gp2y10_device gp2y10_dev;
     struct rt_sensor_config cfg;
+
+    gp2y10_dev.iled_pin = GP2Y10_ILED_PIN;
+    gp2y10_dev.aout_pin = GP2Y10_AOUT_PIN;
     
-    cfg.intf.dev_name = DHT22;
-    cfg.intf.user_data = (void *)DHT22_DATA_PIN;
+    //cfg.intf.type = RT_SENSOR_INTF_ADC;
+    cfg.intf.user_data = (void *)&gp2y10_dev;
     rt_hw_gp2y10_init("gp2", &cfg);
-    
+
     return RT_EOK;
 }
 INIT_COMPONENT_EXPORT(rt_hw_gp2y10_port);

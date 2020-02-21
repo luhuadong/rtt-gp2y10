@@ -10,10 +10,14 @@
 
 #include "gp2y10.h"
 
-#define PULSE_TIME          280         /* us */
-#define COV_RATIO           0.17        /* (ug/m3)/mV */
-#define NO_DUST_VOLTAGE     600         /* mV */
-#define REFER_VOLTAGE       5000        /* mV */
+#define DBG_TAG "sensor.sharp.gp2y10"
+#define DBG_LVL DBG_INFO
+#include <rtdbg.h>
+
+#define ILED_PULSE_TIME          280    /* us */
+#define COV_RATIO                0.17   /* (ug/m3)/mV */
+#define NO_DUST_VOLTAGE          600    /* mV */
+#define REFER_VOLTAGE            5000   /* mV */
 
 RT_WEAK void rt_hw_us_delay(rt_uint32_t us)
 {
@@ -25,17 +29,8 @@ RT_WEAK void rt_hw_us_delay(rt_uint32_t us)
     while (delta - SysTick->VAL < us) continue;
 }
 
-#ifdef GP2Y10_USING_SOFT_FILTER
-/*!
- *  @brief  Read value from sensor and update data array.
- *  @param  usec
- *          Optionally pass pull-up time (in microseconds) before DHT reading
- *          starts. Default is 55 (see function declaration in dht.h).
- *  @return If read data successfully return DHTLIB_OK,
- *          if the data are not complete return DHTLIB_ERROR_CHECKSUM,
- *          if read timeout return DHTLIB_ERROR_TIMEOUT.
- */
-rt_uint32_t gp2y10_filter(rt_uint32_t m)
+#ifdef PKG_USING_GP2Y10_SOFT_FILTER
+static rt_uint32_t gp2y10_filter(rt_uint32_t m)
 {
     static int flag_first = 0, _buff[10], sum;
     const int _buff_max = 10;
@@ -68,35 +63,30 @@ rt_uint32_t gp2y10_filter(rt_uint32_t m)
 }
 #endif
 
-rt_uint32_t gp2y10_get_adc_value(gp2y10_device_t dev)
+static rt_uint32_t gp2y10_get_adc_value(gp2y10_device_t dev)
 {
     rt_uint32_t adc_value;
 
-    /* 使能设备 */
-    rt_adc_enable(dev->adc_dev, ADC_DEV_CHANNEL);
+    rt_adc_enable(dev->adc_dev, ADC_DEV_CHANNEL);    /* 使能设备 */
+    
+    rt_pin_write(dev->iled_pin, PIN_HIGH);           /* Get ADC value */
+    rt_hw_us_delay(ILED_PULSE_TIME);
 
-    /* Get ADC value */
-    rt_pin_write(dev->iled_pin, PIN_HIGH);
-    rt_hw_us_delay(PULSE_TIME);
-
-    /* 读取采样值 */
-    adc_value = rt_adc_read(dev->adc_dev, ADC_DEV_CHANNEL);
+    adc_value = rt_adc_read(dev->adc_dev, ADC_DEV_CHANNEL);   /* 读取采样值 */
     
     rt_pin_write(dev->iled_pin, PIN_LOW);
+    rt_adc_disable(dev->adc_dev, ADC_DEV_CHANNEL);   /* 关闭通道 */
 
-    //rt_kprintf("(GP2Y10) ADC:%d\n", adc_value);
+    LOG_I("ADC: %d\n", adc_value);
 
-    /* 关闭通道 */
-    rt_adc_disable(dev->adc_dev, ADC_DEV_CHANNEL);
-
-#ifdef GP2Y10_USING_SOFT_FILTER
+#ifdef PKG_USING_GP2Y10_SOFT_FILTER
     return gp2y10_filter(adc_value);
 #else
     return adc_value;
 #endif
 }
 
-float gp2y10_get_voltage(gp2y10_device_t dev)
+static float gp2y10_get_voltage(gp2y10_device_t dev)
 {
     rt_uint32_t adc_value;
     float voltage;
@@ -104,16 +94,17 @@ float gp2y10_get_voltage(gp2y10_device_t dev)
     adc_value = gp2y10_get_adc_value(dev);
 
     /* convert */
-    voltage = adc_value * PKG_USING_GP2Y10_VOLTAGE_RATIO * SYS_VOLTAGE / CONVERT_BITS;
+    voltage = adc_value * VOLTAGE_RATIO * REFER_VOLTAGE / CONVERT_BITS;
 
-    //rt_kprintf("(GP2Y10) ADC:%d, Voltage:%dmv\n", adc_value, (int)voltage);
+    LOG_I("Voltage: %dmv\n", (int)voltage);
 
     return voltage;
 }
 
 float gp2y10_get_dust_density(gp2y10_device_t dev)
 {
-	float voltage, density;
+	float       voltage; 
+    rt_uint32_t density;
 
     voltage = gp2y10_get_voltage(dev);
 
@@ -122,26 +113,54 @@ float gp2y10_get_dust_density(gp2y10_device_t dev)
     	voltage -= NO_DUST_VOLTAGE;
     	density  = voltage * COV_RATIO;
     }
-    else density = 0.0;
+    else density = 0;
 
-    //rt_kprintf("(GP2Y10) Voltage:%dmv, Dust:%dppm\n", (int)voltage, (int)density);
+    LOG_I("Dust density: %d ug/m3\n", density);
 
     return density;
 }
 
-gp2y10_device_t gp2y10_init(gp2y10_device_t dev, rt_base_t iled_pin, rt_base_t aout_pin)
+rt_err_t gp2y10_init(struct gp2y10_device *dev, const rt_base_t iled_pin, const rt_base_t aout_pin)
 {
-    if(dev == NULL) return RT_NULL;
+    RT_ASSERT(dev);
 
     /* 查找设备 */
+    dev->adc_dev = (rt_adc_device_t)rt_device_find(ADC_DEV_NAME);
+    if (dev->adc_dev == RT_NULL)
+    {
+        LOG_E("Can't find %s device!\n", ADC_DEV_NAME);
+        return -RT_ERROR;
+    }
+    
+    dev->iled_pin = iled_pin;
+    dev->aout_pin = aout_pin;
+
+    rt_pin_mode(dev->iled_pin, PIN_MODE_OUTPUT);
+    rt_pin_write(dev->iled_pin, PIN_LOW);
+
+    return RT_EOK;
+}
+
+gp2y10_device_t gp2y10_create(const rt_base_t iled_pin, const rt_base_t aout_pin)
+{
+    gp2y10_device_t dev;
+
+    dev = rt_calloc(1, sizeof(struct gp2y10_device));
+    if (dev == RT_NULL)
+    {
+        LOG_E("Can't allocate memory for gp2y10 device");
+        return RT_NULL;
+    }
+
     dev->adc_dev = (rt_adc_device_t)rt_device_find(ADC_DEV_NAME);
 
     if (dev->adc_dev == RT_NULL)
     {
-        rt_kprintf("(GP2Y10) Can't find %s device!\n", ADC_DEV_NAME);
-        //return RT_ERROR;
+        LOG_E("Can't find %s device!\n", ADC_DEV_NAME);
+        rt_free(dev);
+        return RT_NULL;
     }
-    
+
     dev->iled_pin = iled_pin;
     dev->aout_pin = aout_pin;
 
@@ -151,11 +170,11 @@ gp2y10_device_t gp2y10_init(gp2y10_device_t dev, rt_base_t iled_pin, rt_base_t a
     return dev;
 }
 
-void gp2y10_deinit(gp2y10_device_t dev)
+void gp2y10_delete(gp2y10_device_t dev)
 {
-    RT_ASSERT(dev);
-
-    rt_mutex_delete(dev->lock);
-
-    rt_free(dev);
+    if (dev)
+    {
+        //rt_mutex_delete(dev->lock);
+        rt_free(dev);
+    }
 }
