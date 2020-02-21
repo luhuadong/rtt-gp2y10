@@ -103,7 +103,7 @@ static rt_err_t _gp2y10_init(struct gp2y10_device *dev)
     dev->adc_dev = (rt_adc_device_t)rt_device_find(ADC_DEV_NAME);
     if (dev->adc_dev == RT_NULL)
     {
-        LOG_E("Can't find %s device!\n", ADC_DEV_NAME);
+        LOG_E("Can't find %s device!", ADC_DEV_NAME);
         return -RT_ERROR;
     }
 

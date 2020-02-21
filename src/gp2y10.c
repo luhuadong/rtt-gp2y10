@@ -77,7 +77,7 @@ static rt_uint32_t gp2y10_get_adc_value(gp2y10_device_t dev)
     rt_pin_write(dev->iled_pin, PIN_LOW);
     rt_adc_disable(dev->adc_dev, ADC_DEV_CHANNEL);   /* 关闭通道 */
 
-    LOG_I("ADC: %d\n", adc_value);
+    LOG_I("ADC: %d", adc_value);
 
 #ifdef PKG_USING_GP2Y10_SOFT_FILTER
     return gp2y10_filter(adc_value);
@@ -96,7 +96,7 @@ static float gp2y10_get_voltage(gp2y10_device_t dev)
     /* convert */
     voltage = adc_value * VOLTAGE_RATIO * REFER_VOLTAGE / CONVERT_BITS;
 
-    LOG_I("Voltage: %dmv\n", (int)voltage);
+    LOG_I("Voltage: %dmv", (int)voltage);
 
     return voltage;
 }
@@ -115,7 +115,7 @@ rt_uint32_t gp2y10_get_dust_density(gp2y10_device_t dev)
     }
     else density = 0;
 
-    LOG_I("Dust density: %d ug/m3\n", density);
+    LOG_I("Dust density: %d ug/m3", density);
 
     return density;
 }
@@ -128,7 +128,7 @@ rt_err_t gp2y10_init(struct gp2y10_device *dev, const rt_base_t iled_pin, const 
     dev->adc_dev = (rt_adc_device_t)rt_device_find(ADC_DEV_NAME);
     if (dev->adc_dev == RT_NULL)
     {
-        LOG_E("Can't find %s device!\n", ADC_DEV_NAME);
+        LOG_E("Can't find %s device!", ADC_DEV_NAME);
         return -RT_ERROR;
     }
     
@@ -156,7 +156,7 @@ gp2y10_device_t gp2y10_create(const rt_base_t iled_pin, const rt_base_t aout_pin
 
     if (dev->adc_dev == RT_NULL)
     {
-        LOG_E("Can't find %s device!\n", ADC_DEV_NAME);
+        LOG_E("Can't find %s device!", ADC_DEV_NAME);
         rt_free(dev);
         return RT_NULL;
     }
