@@ -77,7 +77,7 @@ static rt_uint32_t gp2y10_get_adc_value(gp2y10_device_t dev)
     rt_pin_write(dev->iled_pin, PIN_LOW);
     rt_adc_disable(dev->adc_dev, ADC_DEV_CHANNEL);   /* 关闭通道 */
 
-    LOG_I("ADC: %d", adc_value);
+    LOG_D("ADC: %d", adc_value);
 
 #ifdef PKG_USING_GP2Y10_SOFT_FILTER
     return gp2y10_filter(adc_value);
@@ -96,7 +96,7 @@ static float gp2y10_get_voltage(gp2y10_device_t dev)
     /* convert */
     voltage = adc_value * VOLTAGE_RATIO * REFER_VOLTAGE / CONVERT_BITS;
 
-    LOG_I("Voltage: %dmv", (int)voltage);
+    LOG_D("Voltage: %dmv", (int)voltage);
 
     return voltage;
 }
@@ -115,7 +115,7 @@ rt_uint32_t gp2y10_get_dust_density(gp2y10_device_t dev)
     }
     else density = 0;
 
-    LOG_I("Dust density: %d ug/m3", density);
+    LOG_D("Dust density: %d ug/m3", density);
 
     return density;
 }
