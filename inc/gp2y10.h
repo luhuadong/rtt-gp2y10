@@ -16,7 +16,7 @@
 #include <board.h>
 #include <sensor.h>
 
-#define GP2Y10LIB_VERSION   "0.0.1"
+#define GP2Y10LIB_VERSION   "0.8.0"
 
 #ifndef PKG_USING_GP2Y10_ADC_DEV_NAME
 #define ADC_DEV_NAME        "adc1"
