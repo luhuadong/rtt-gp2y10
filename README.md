@@ -159,7 +159,7 @@ rt_err_t gp2y10_init(struct gp2y10_device *dev,
 
 #### 读取数据
 
-读取温湿度值，并将数据保存在传感器对象中。
+读取并返回灰尘浓度值，单位 ug/m3。
 
 ```c
 rt_uint32_t gp2y10_get_dust_density(gp2y10_device_t dev);
