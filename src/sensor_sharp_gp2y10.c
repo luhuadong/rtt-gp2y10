@@ -163,6 +163,7 @@ rt_err_t rt_hw_gp2y10_init(const char *name, struct rt_sensor_config *cfg)
 
         rt_memcpy(&sensor_dust->config, cfg, sizeof(struct rt_sensor_config));
         sensor_dust->ops = &sensor_ops;
+        sensor_dust->config.intf.user_data = (void *)gp2y10_dev;
         
         result = rt_hw_sensor_register(sensor_dust, name, RT_DEVICE_FLAG_RDWR, RT_NULL);
         if (result != RT_EOK)
