@@ -195,7 +195,7 @@ rt_err_t rt_hw_gp2y10_init(const char *name, struct rt_sensor_config *cfg);
 ```c
 static int rt_hw_gp2y10_port(void)
 {
-    static struct gp2y10_device gp2y10_dev;
+    struct gp2y10_device gp2y10_dev;
     struct rt_sensor_config cfg;
 
     gp2y10_dev.iled_pin = GP2Y10_ILED_PIN;
@@ -214,7 +214,7 @@ INIT_COMPONENT_EXPORT(rt_hw_gp2y10_port);
 ## 5、注意事项
 
 1. 为传感器对象提供静态创建和动态创建两种方式，如果使用动态创建，请记得在使用完毕释放对应的内存空间。
-2. 由于 GP2Y10 模块采用光学检测原理，因此出来需要配置 ADC 引脚，还需要指定一个 GPIO 引脚（iled_pin），用于发射光脉冲。
+2. 由于 GP2Y10 模块采用光学检测原理，因此出来需要配置 ADC 引脚，还需要指定一个 GPIO 引脚（iled_pin），用于发射光脉冲，因此在调用 `rt_hw_gp2y10_init` 需要构建并传入 `gp2y10_device` 结构体指针。
 
 
 
