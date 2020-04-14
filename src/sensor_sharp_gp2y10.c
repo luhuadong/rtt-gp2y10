@@ -126,10 +126,20 @@ rt_err_t rt_hw_gp2y10_init(const char *name, struct rt_sensor_config *cfg)
     int result;
     rt_sensor_t sensor_dust = RT_NULL;
 
-    if (_gp2y10_init((gp2y10_device_t)cfg->intf.user_data) != RT_EOK)
+    gp2y10_device_t gp2y10_dev = rt_calloc(1, sizeof(struct gp2y10_device));
+    if (gp2y10_dev == RT_NULL)
+    {
+        LOG_E("alloc memory failed");
+        result = -RT_ENOMEM;
+        goto __exit;
+    }
+    rt_memcpy(gp2y10_dev, cfg->intf.user_data, sizeof(struct gp2y10_device));
+
+    if (_gp2y10_init(gp2y10_dev) != RT_EOK)
     {
         LOG_E("device init failed");
-        return -RT_ERROR;
+        result = -RT_ERROR;
+        goto __exit;
     }
 
     /* dust sensor register */
@@ -138,7 +148,8 @@ rt_err_t rt_hw_gp2y10_init(const char *name, struct rt_sensor_config *cfg)
         if (sensor_dust == RT_NULL)
         {
             LOG_E("alloc memory failed");
-            return -RT_ENOMEM;
+            result = -RT_ENOMEM;
+            goto __exit;
         }
 
         sensor_dust->info.type       = RT_SENSOR_CLASS_DUST;
@@ -157,11 +168,19 @@ rt_err_t rt_hw_gp2y10_init(const char *name, struct rt_sensor_config *cfg)
         if (result != RT_EOK)
         {
             LOG_E("device register err code: %d", result);
-            rt_free(sensor_dust);
-            return -RT_ERROR;
+            result = -RT_ERROR;
+            goto __exit;
         }
     }
 
     LOG_I("sensor init success");
     return RT_EOK;
+
+__exit:
+    if (sensor_dust)
+        rt_free(sensor_dust);
+    if (gp2y10_dev)
+        rt_free(gp2y10_dev);
+
+    return result;
 }

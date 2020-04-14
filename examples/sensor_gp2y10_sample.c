@@ -65,7 +65,7 @@ INIT_APP_EXPORT(gp2y10_read_sample);
 
 static int rt_hw_gp2y10_port(void)
 {
-    static struct gp2y10_device gp2y10_dev;
+    struct gp2y10_device gp2y10_dev;
     struct rt_sensor_config cfg;
 
     gp2y10_dev.iled_pin = GP2Y10_ILED_PIN;
