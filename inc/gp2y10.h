@@ -16,33 +16,38 @@
 #include <board.h>
 #include <sensor.h>
 
-#define GP2Y10LIB_VERSION   "0.8.1"
+#define GP2Y10LIB_VERSION        "1.0.0"
 
 #ifndef PKG_USING_GP2Y10_ADC_DEV_NAME
-#define ADC_DEV_NAME        "adc1"
+#define ADC_DEV_NAME             "adc1"
 #else
-#define ADC_DEV_NAME        PKG_USING_GP2Y10_ADC_DEV_NAME
+#define ADC_DEV_NAME             PKG_USING_GP2Y10_ADC_DEV_NAME
 #endif
 
 #ifndef PKG_USING_GP2Y10_ADC_DEV_CHANNEL
-#define ADC_DEV_CHANNEL     4
+#define ADC_DEV_CHANNEL          4
 #else
-#define ADC_DEV_CHANNEL     PKG_USING_GP2Y10_ADC_DEV_CHANNEL
+#define ADC_DEV_CHANNEL          PKG_USING_GP2Y10_ADC_DEV_CHANNEL
 #endif
 
 #ifndef PKG_USING_GP2Y10_CONVERT_BITS
-#define CONVERT_BITS        (1 << 12)
+#define CONVERT_BITS             (1 << 12)
 #else
-#define CONVERT_BITS        (1 << PKG_USING_GP2Y10_CONVERT_BITS)
+#define CONVERT_BITS             (1 << PKG_USING_GP2Y10_CONVERT_BITS)
 #endif
 
 #ifndef PKG_USING_GP2Y10_VOLTAGE_RATIO
-#define VOLTAGE_RATIO       11
+#define VOLTAGE_RATIO            11
 #else
-#define VOLTAGE_RATIO       PKG_USING_GP2Y10_VOLTAGE_RATIO
+#define VOLTAGE_RATIO            PKG_USING_GP2Y10_VOLTAGE_RATIO
 #endif
 
 // PKG_USING_GP2Y10_SOFT_FILTER
+
+#define ILED_PULSE_TIME          280    /* us */
+#define COV_RATIO                0.17   /* (ug/m3)/mV */
+#define NO_DUST_VOLTAGE          400    /* mV */
+#define REFER_VOLTAGE            5000   /* mV */
 
 struct gp2y10_device
 {

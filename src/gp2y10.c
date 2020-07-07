@@ -14,10 +14,6 @@
 #define DBG_LVL DBG_INFO
 #include <rtdbg.h>
 
-#define ILED_PULSE_TIME          280    /* us */
-#define COV_RATIO                0.17   /* (ug/m3)/mV */
-#define NO_DUST_VOLTAGE          600    /* mV */
-#define REFER_VOLTAGE            5000   /* mV */
 
 RT_WEAK void rt_hw_us_delay(rt_uint32_t us)
 {

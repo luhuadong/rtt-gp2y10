@@ -14,14 +14,10 @@
 #define DBG_LVL DBG_INFO
 #include <rtdbg.h>
 
-#define ILED_PULSE_TIME          280    /* us */
-#define COV_RATIO                0.17   /* (ug/m3)/mV */
-#define NO_DUST_VOLTAGE          600    /* mV */
-#define REFER_VOLTAGE            5000   /* mV */
 
-#define SENSOR_DUST_RANGE_MAX    1024
+#define SENSOR_DUST_RANGE_MAX    1000
 #define SENSOR_DUST_RANGE_MIN    0
-#define SENSOR_DUST_PERIOD_MIN   0
+#define SENSOR_DUST_PERIOD_MIN   200
 
 RT_WEAK void rt_hw_us_delay(rt_uint32_t us)
 {
