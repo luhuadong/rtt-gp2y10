@@ -46,7 +46,7 @@
 
 #define ILED_PULSE_TIME          280    /* us */
 #define COV_RATIO                0.17   /* (ug/m3)/mV */
-#define NO_DUST_VOLTAGE          400    /* mV */
+#define NO_DUST_VOLTAGE          600    /* mV */
 #define REFER_VOLTAGE            5000   /* mV */
 
 struct gp2y10_device

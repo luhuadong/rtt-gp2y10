@@ -10,8 +10,8 @@
 
 #include "gp2y10.h"
 
-#define DBG_TAG "sensor.sharp.gp2y10"
-#define DBG_LVL DBG_INFO
+#define DBG_TAG                  "sensor.sharp.gp2y10"
+#define DBG_LVL                  DBG_LOG
 #include <rtdbg.h>
 
 
