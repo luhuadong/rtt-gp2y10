@@ -10,10 +10,13 @@
 
 #include "gp2y10.h"
 
-#define DBG_TAG                  "sensor.sharp.gp2y10"
-#define DBG_LVL                  DBG_LOG
+#define DBG_TAG                       "sensor.sharp.gp2y10"
+#ifdef PKG_USING_GP2Y10_DEBUG
+#define DBG_LVL                       DBG_LOG
+#else
+#define DBG_LVL                       DBG_ERROR
+#endif
 #include <rtdbg.h>
-
 
 #define SENSOR_DUST_RANGE_MAX    1000
 #define SENSOR_DUST_RANGE_MIN    0
