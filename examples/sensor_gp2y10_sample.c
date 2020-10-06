@@ -11,11 +11,10 @@
 #include <rtthread.h>
 #include <rtdevice.h>
 #include <board.h>
-
 #include "gp2y10.h"
 
-#define GP2Y10_ILED_PIN          GET_PIN(F, 15)  /* D2 */
-#define GP2Y10_AOUT_PIN          GET_PIN(C, 3)   /* A2 */
+#define GP2Y10_ILED_PIN          PKG_USING_GP2Y10_SAMPLE_ILED_PIN
+#define GP2Y10_AOUT_PIN          PKG_USING_GP2Y10_SAMPLE_AOUT_PIN
 
 static void read_dust_entry(void *args)
 {
@@ -61,7 +60,9 @@ static int gp2y10_read_sample(void)
     if (dust_thread) 
         rt_thread_startup(dust_thread);
 }
-INIT_APP_EXPORT(gp2y10_read_sample);
+#ifdef FINSH_USING_MSH
+MSH_CMD_EXPORT(gp2y10_read_sample, read gp2y10 sensor data);
+#endif
 
 static int rt_hw_gp2y10_port(void)
 {

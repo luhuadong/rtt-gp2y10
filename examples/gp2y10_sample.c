@@ -11,29 +11,13 @@
 #include <rtthread.h>
 #include <rtdevice.h>
 #include <board.h>
-
 #include "gp2y10.h"
 
-#define GP2Y10_ILED_PIN          GET_PIN(F, 15)  /* D2 */
-#define GP2Y10_AOUT_PIN          GET_PIN(C, 3)   /* A2 */
-
-/* cat_gp2y10 by static */
-static void cat_gp2y10_static(void)
-{
-    struct gp2y10_device gp2y10;
-
-    if (RT_EOK == gp2y10_init(&gp2y10, GP2Y10_ILED_PIN, GP2Y10_AOUT_PIN))
-    {
-        rt_uint32_t dust = gp2y10_get_dust_density(&gp2y10);
-        rt_kprintf("Dust: %d ug/m3\n", dust);
-    }
-    else {
-        rt_kprintf("GP2Y10 read error\n");
-    }
-}
+#define GP2Y10_ILED_PIN          PKG_USING_GP2Y10_SAMPLE_ILED_PIN
+#define GP2Y10_AOUT_PIN          PKG_USING_GP2Y10_SAMPLE_AOUT_PIN
 
 /* cat_gp2y10 by dynamic */
-static void cat_gp2y10_dynamic(void)
+static void cat_gp2y10(void)
 {
     gp2y10_device_t gp2y10 = gp2y10_create(GP2Y10_ILED_PIN, GP2Y10_AOUT_PIN);
 
@@ -43,13 +27,12 @@ static void cat_gp2y10_dynamic(void)
         rt_kprintf("Dust: %d ug/m3\n", dust);
     }
     else {
-        rt_kprintf("GP2Y10 read error\n");
+        rt_kprintf("Read gp2y10 sensor failed.\n");
     }
 
     gp2y10_delete(gp2y10);
 }
 
 #ifdef FINSH_USING_MSH
-MSH_CMD_EXPORT(cat_gp2y10_static, read gp2y10 dust density);
-MSH_CMD_EXPORT(cat_gp2y10_dynamic, read gp2y10 dust density);
+MSH_CMD_EXPORT(cat_gp2y10, read gp2y10 dust density);
 #endif
